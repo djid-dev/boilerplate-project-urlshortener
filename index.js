@@ -41,14 +41,14 @@ app.post("/api/shorturl", async function (req, res) {
   const originalUrl = req.body.url;
 
   if (!originalUrl) {
-    return res.status(400).json({ error: "URL is required" });
+    return res.status(400).json({ error: "url is required" });
   }
 
   let hostname;
   try {
     hostname = new URL(originalUrl).hostname;
   } catch (error) {
-    return res.status(400).json({ error: "Invalid URL format" });
+    return res.status(400).json({ error: "invalid url" });
   }
   try {
     await dns.lookup(hostname);
@@ -62,7 +62,7 @@ app.post("/api/shorturl", async function (req, res) {
     await urlEntry.save();
     res.json({ original_url: originalUrl, short_url: shortUrl });
   } catch (error) {
-    return res.status(400).json({ error: "Invalid URL" });
+    return res.status(400).json({ error: "invalid url" });
   }
 });
 
