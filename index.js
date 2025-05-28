@@ -41,11 +41,11 @@ app.post("/api/shorturl", async function (req, res) {
   const originalUrl = req.body.url;
 
   if (!originalUrl) {
-    return res.status(400).json({ error: "invalid url" });
+    return json({ error: "invalid url" });
   }
 
   if (!/^https?:\/\/[^/]+/.test(originalUrl)) {
-    return res.status(400).json({ error: "invalid url" });
+    return json({ error: "invalid url" });
   }
 
   let hostname, url;
@@ -54,17 +54,17 @@ app.post("/api/shorturl", async function (req, res) {
 
     if (!url.hostname) {
       console.log("Invalid URL: No hostname found");
-      return res.status(400).json({ error: "invalid url" });
+      return json({ error: "invalid url" });
     }
 
     if (!url.hostname.includes(".")) {
-      return res.status(400).json({ error: "invalid url" });
+      return json({ error: "invalid url" });
     }
 
     hostname = url.hostname;
   } catch (error) {
     console.log("Invalid URL: Parsing error", error);
-    return res.status(400).json({ error: "invalid url" });
+    return json({ error: "invalid url" });
   }
 
   try {
@@ -80,7 +80,7 @@ app.post("/api/shorturl", async function (req, res) {
     res.json({ original_url: url.href, short_url: shortUrl });
   } catch (error) {
     console.log("Invalid URL: DNS lookup failed", error);
-    return res.status(400).json({ error: "invalid url" });
+    return json({ error: "invalid url" });
   }
 });
 
