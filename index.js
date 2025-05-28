@@ -27,13 +27,13 @@ app.get("/api/shorturl/:shorturl", function (req, res) {
     .findOne({ shortUrl: req.params.shorturl })
     .then((urlEntry) => {
       if (!urlEntry) {
-        return res.status(404).json({ error: "URL not found" });
+        return json({ error: "URL not found" });
       }
       res.redirect(urlEntry.url);
     })
     .catch((err) => {
       console.error("Error retrieving URL:", err);
-      res.status(500).json({ error: "Internal Server Error" });
+      res.json({ error: "Internal Server Error" });
     });
 });
 
@@ -69,6 +69,15 @@ app.post("/api/shorturl", async function (req, res) {
 
   try {
     await dns.lookup(hostname);
+
+    urlModel.findOne({ url: url.href }).then((existingUrl) => {
+      if (existingUrl) {
+        return res.json({
+          original_url: existingUrl.url,
+          short_url: existingUrl.shortUrl,
+        });
+      }
+    });
 
     const shortUrl = Math.floor(Math.random() * 1000).toString();
 
