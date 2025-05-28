@@ -53,8 +53,11 @@ app.post("/api/shorturl", async function (req, res) {
     url = new URL(originalUrl);
 
     if (!url.hostname) {
-      
       console.log("Invalid URL: No hostname found");
+      return res.status(400).json({ error: "invalid url" });
+    }
+
+    if (!url.hostname.includes(".")) {
       return res.status(400).json({ error: "invalid url" });
     }
 
