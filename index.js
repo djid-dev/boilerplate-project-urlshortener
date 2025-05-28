@@ -27,7 +27,7 @@ app.get("/api/shorturl/:shorturl", function (req, res) {
     .findOne({ shortUrl: req.params.shorturl })
     .then((urlEntry) => {
       if (!urlEntry) {
-        return json({ error: "URL not found" });
+        return res.json({ error: "URL not found" });
       }
       res.redirect(urlEntry.url);
     })
@@ -41,11 +41,11 @@ app.post("/api/shorturl", async function (req, res) {
   const originalUrl = req.body.url;
 
   if (!originalUrl) {
-    return json({ error: "invalid url" });
+    return res.json({ error: "invalid url" });
   }
 
   if (!/^https?:\/\/[^/]+/.test(originalUrl)) {
-    return json({ error: "invalid url" });
+    return res.json({ error: "invalid url" });
   }
 
   let hostname, url;
@@ -54,30 +54,23 @@ app.post("/api/shorturl", async function (req, res) {
 
     if (!url.hostname) {
       console.log("Invalid URL: No hostname found");
-      return json({ error: "invalid url" });
+      return res.json({ error: "invalid url" });
     }
 
     if (!url.hostname.includes(".")) {
-      return json({ error: "invalid url" });
+      return res.json({ error: "invalid url" });
     }
 
     hostname = url.hostname;
   } catch (error) {
     console.log("Invalid URL: Parsing error", error);
-    return json({ error: "invalid url" });
+    return res.json({ error: "invalid url" });
   }
 
   try {
     await dns.lookup(hostname);
 
-    urlModel.findOne({ url: url.href }).then((existingUrl) => {
-      if (existingUrl) {
-        return res.json({
-          original_url: existingUrl.url,
-          short_url: existingUrl.shortUrl,
-        });
-      }
-    });
+    
 
     const shortUrl = Math.floor(Math.random() * 1000).toString();
 
@@ -89,7 +82,7 @@ app.post("/api/shorturl", async function (req, res) {
     res.json({ original_url: url.href, short_url: shortUrl });
   } catch (error) {
     console.log("Invalid URL: DNS lookup failed", error);
-    return json({ error: "invalid url" });
+    return res.json({ error: "invalid url" });
   }
 });
 
