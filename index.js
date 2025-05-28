@@ -41,7 +41,7 @@ app.post("/api/shorturl", async function (req, res) {
   const originalUrl = req.body.url;
 
   if (!originalUrl) {
-    return res.status(400).json({ error: "url is required" });
+    return res.status(400).json({ error: "invalid url" });
   }
 
   if (!/^https?:\/\/[^/]+/.test(originalUrl)) {
