@@ -44,29 +44,39 @@ app.post("/api/shorturl", async function (req, res) {
     return res.status(400).json({ error: "url is required" });
   }
 
-  const regex = /^https?:\/\/[^/]+$/;
-  if (!regex.test(originalUrl)) {
+  if (!/^https?:\/\/[^/]+/.test(originalUrl)) {
     return res.status(400).json({ error: "invalid url" });
   }
 
-  let hostname;
+  let hostname, url;
   try {
-    hostname = new URL(originalUrl).hostname;
+    url = new URL(originalUrl);
+
+    if (!url.hostname) {
+      
+      console.log("Invalid URL: No hostname found");
+      return res.status(400).json({ error: "invalid url" });
+    }
+
+    hostname = url.hostname;
   } catch (error) {
+    console.log("Invalid URL: Parsing error", error);
     return res.status(400).json({ error: "invalid url" });
   }
+
   try {
     await dns.lookup(hostname);
 
-    const shortUrl = Math.floor(Math.random() * 1000);
+    const shortUrl = Math.floor(Math.random() * 1000).toString();
 
     const urlEntry = new urlModel({
-      url: originalUrl,
-      shortUrl: shortUrl.toString(),
+      url: url.href,
+      shortUrl: shortUrl,
     });
     await urlEntry.save();
-    res.json({ original_url: originalUrl, short_url: shortUrl });
+    res.json({ original_url: url.href, short_url: shortUrl });
   } catch (error) {
+    console.log("Invalid URL: DNS lookup failed", error);
     return res.status(400).json({ error: "invalid url" });
   }
 });
